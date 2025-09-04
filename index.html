@@ -69,6 +69,10 @@
       text-shadow: 1px 1px 2px #fff; /* contraste */
     }
   </style>
+<!-- Marcadores coloridos do Leaflet -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+
 </head>
 <body>
 
@@ -263,27 +267,41 @@
     // Localização em tempo real
     var userMarker;
 
-    map.locate({
-      setView: false,
+    // Ícone personalizado (vermelho neste caso)
+    var redIcon = new L.Icon({
+       iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+       shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+       iconSize: [25, 41],
+       iconAnchor: [12, 41],
+       popupAnchor: [1, -34],
+       shadowSize: [41, 41]
+    });
+
+   // Localização em tempo real
+     map.locate({
+      setView: false,   // não ancorar mais na posição do usuário
       maxZoom: 18,
       watch: true,
       enableHighAccuracy: true
-    });
+     });
 
-    map.on("locationfound", function(e) {
+     map.on("locationfound", function(e) {
       if (!userMarker) {
-        userMarker = L.marker(e.latlng).addTo(map)
-          .bindPopup("📍 Você está aqui")
-          .openPopup();
+         userMarker = L.marker(e.latlng, { icon: redIcon }).addTo(map)
+        .bindPopup("📍 Você está aqui")
+        .openPopup();
       } else {
-        userMarker.setLatLng(e.latlng);
-      }
-    });
+    userMarker.setLatLng(e.latlng);
+  }
+});
 
-    map.on("locationerror", function(e) {
-      alert("Não foi possível acessar sua localização.");
-    });
+map.on("locationerror", function() {
+  alert("Não foi possível acessar sua localização.");
+});
+
   </script>
 </body>
 </html>
+
+
 
