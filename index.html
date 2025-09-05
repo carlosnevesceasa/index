@@ -7,6 +7,8 @@
 
   <!-- CSS do Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- CSS do Routing Machine -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
 
   <style>
     #map {
@@ -33,7 +35,7 @@
       padding: 5px;
       border: none;
       border-radius: 6px;
-      font-size: 20px;
+      font-size: 24px;
     }
 
     #suggestions {
@@ -70,13 +72,12 @@
       text-shadow: 1px 1px 2px #fff; /* contraste */
     }
   </style>
-
 </head>
 <body>
 
   <!-- Caixa de busca -->
   <div id="searchBox">
-    <input type="text" id="searchInput" placeholder="Buscar empresas,locais, produtos">
+    <input type="text" id="searchInput" placeholder="Buscar empresas ou locais">
     <div id="suggestions"></div>
   </div>
 
@@ -84,6 +85,8 @@
 
   <!-- JS do Leaflet -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- JS do Routing Machine -->
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
   <script>
     // Inicializa mapa (CEASA-ES como centro inicial)
@@ -121,7 +124,7 @@
       .addTo(map);
     });
 
-    // Lista de empresas
+    // Lista de empresas (resumida para caber, mas pode manter a sua completa)
     var empresas = [
       {nome: "Sicoob", coords: [-20.341189, -40.402039]},
       {nome: "Portaria 01", coords: [-20.342153, -40.401561]},
@@ -232,6 +235,9 @@
     var searchInput = document.getElementById("searchInput");
     var suggestions = document.getElementById("suggestions");
 
+    // Variável para rota
+    var routingControl;
+
     searchInput.addEventListener("input", function() {
       var query = this.value.toLowerCase();
       suggestions.innerHTML = "";
@@ -253,11 +259,34 @@
               suggestions.style.display = "none";
 
               var marker = markers[e.nome];
-              // Adiciona marcador ao mapa se ainda não estiver
               if (!map.hasLayer(marker)) map.addLayer(marker);
 
               map.setView(marker.getLatLng(), 19);
               marker.openPopup();
+
+              // Se já existe uma rota, remove
+              if (routingControl) {
+                map.removeControl(routingControl);
+              }
+
+              // Gera rota do usuário até o destino
+              if (userMarker) {
+                routingControl = L.Routing.control({
+                  waypoints: [
+                    userMarker.getLatLng(),  // início
+                    marker.getLatLng()       // destino
+                  ],
+                  lineOptions: {
+                    styles: [{color: 'blue', weight: 5}]
+                  },
+                  addWaypoints: false,
+                  draggableWaypoints: false,
+                  showAlternatives: false,
+                  routeWhileDragging: false
+                }).addTo(map);
+              } else {
+                alert("Sua localização ainda não foi encontrada!");
+              }
             };
             suggestions.appendChild(div);
           });
@@ -307,16 +336,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
