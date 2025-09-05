@@ -71,6 +71,21 @@
       color: green;
       text-shadow: 1px 1px 2px #fff; /* contraste */
     }
+
+    /* Caixa de informação da rota */
+    #routeInfo {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      font-size: 18px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -81,6 +96,9 @@
     <div id="suggestions"></div>
   </div>
 
+  <!-- Informações da rota -->
+  <div id="routeInfo"></div>
+
   <div id="map"></div>
 
   <!-- JS do Leaflet -->
@@ -89,17 +107,15 @@
   <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
   <script>
-    // Inicializa mapa (CEASA-ES como centro inicial)
     var map = L.map('map').setView([-20.340995, -40.402908], 18);
 
-    // Camada do OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Lista de pavilhões
-    var pavilhoes = [
+    // Lista de pavilhões (resumida para exemplo)
+   var pavilhoes = [
        {nome: "PP1", coords: [-20.34209272807713, -40.40343056150704]},
        {nome: "PNP1", coords: [-20.341443874819706, -40.402886073084716]},
        {nome: "PNP2", coords: [-20.341690338777376, -40.404133300258756]},
@@ -112,7 +128,6 @@
        {nome: "Caixaria", coords: [-20.339375322501912, -40.40288607308167]}
     ];
 
-    // Adiciona os nomes dos pavilhões diretamente no mapa
     pavilhoes.forEach(function(p) {
       L.tooltip({
         permanent: true,
@@ -124,8 +139,8 @@
       .addTo(map);
     });
 
-    // Lista de empresas (resumida para exemplo, pode manter completa)
-     var empresas = [
+    // Lista de empresas (exemplo)
+    var empresas = [
       {nome: "Sicoob", coords: [-20.341189, -40.402039]},
       {nome: "Portaria 01", coords: [-20.342153, -40.401561]},
       {nome: "Portaria 02", coords: [-20.339382, -40.402143]},
@@ -222,7 +237,6 @@
       {nome: "Bar e Restaurante Bico Doce", coords: [-20.341399, -40.402728]}
     ];
 
-    // Cria marcadores mas não adiciona ao mapa
     var markers = {};
     empresas.forEach(function(e) {
       var marker = L.marker(e.coords)
@@ -231,18 +245,41 @@
       markers[e.nome] = marker;
     });
 
-    // Função de busca
     var searchInput = document.getElementById("searchInput");
     var suggestions = document.getElementById("suggestions");
-
-    // Variável para rota
+    var routeInfo = document.getElementById("routeInfo");
     var routingControl;
+    var userMarker;
+
+    // Ícone vermelho para o usuário
+    var redIcon = new L.Icon({
+       iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+       shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+       iconSize: [25, 41],
+       iconAnchor: [12, 41],
+       popupAnchor: [1, -34],
+       shadowSize: [41, 41]
+    });
+
+    map.locate({ setView: false, maxZoom: 18, watch: true, enableHighAccuracy: true });
+
+    map.on("locationfound", function(e) {
+      if (!userMarker) {
+         userMarker = L.marker(e.latlng, { icon: redIcon }).addTo(map)
+          .bindPopup("📍 Você está aqui");
+      } else {
+        userMarker.setLatLng(e.latlng);
+      }
+    });
+
+    map.on("locationerror", function() {
+      alert("Não foi possível acessar sua localização.");
+    });
 
     searchInput.addEventListener("input", function() {
       var query = this.value.toLowerCase();
       suggestions.innerHTML = "";
 
-      // Remove todos os marcadores do mapa
       Object.values(markers).forEach(marker => {
         if (map.hasLayer(marker)) map.removeLayer(marker);
       });
@@ -260,31 +297,27 @@
 
               var marker = markers[e.nome];
               if (!map.hasLayer(marker)) map.addLayer(marker);
-
               map.setView(marker.getLatLng(), 19);
               marker.openPopup();
 
-              // Se já existe uma rota, remove
-              if (routingControl) {
-                map.removeControl(routingControl);
-              }
+              if (routingControl) map.removeControl(routingControl);
 
-              // Gera rota do usuário até o destino
               if (userMarker) {
                 routingControl = L.Routing.control({
-                  waypoints: [
-                    userMarker.getLatLng(),  // início
-                    marker.getLatLng()       // destino
-                  ],
-                  lineOptions: {
-                    styles: [{color: 'blue', weight: 5}]
-                  },
+                  waypoints: [userMarker.getLatLng(), marker.getLatLng()],
+                  router: L.Routing.osrmv1({ profile: 'foot' }), // 🚶 rota a pé
+                  lineOptions: { styles: [{ color: 'blue', weight: 5 }] },
                   addWaypoints: false,
                   draggableWaypoints: false,
-                  showAlternatives: false,
+                  show: false,
                   routeWhileDragging: false,
-                  language: 'pt-BR',
-                  createMarker: function() { return null; } // remove marcadores padrão azul
+                  createMarker: function() { return null; }
+                }).on('routesfound', function(e) {
+                  var route = e.routes[0];
+                  var km = (route.summary.totalDistance / 1000).toFixed(2);
+                  var min = Math.round(route.summary.totalTime / 60);
+                  routeInfo.innerHTML = "Distância: " + km + " km | Tempo estimado: " + min + " min";
+                  routeInfo.style.display = "block";
                 }).addTo(map);
               } else {
                 alert("Sua localização ainda não foi encontrada!");
@@ -299,42 +332,6 @@
         suggestions.style.display = "none";
       }
     });
-
-    // =====================================
-    // Localização em tempo real
-    var userMarker;
-
-    // Ícone personalizado vermelho
-    var redIcon = new L.Icon({
-       iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-       shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-       iconSize: [25, 41],
-       iconAnchor: [12, 41],
-       popupAnchor: [1, -34],
-       shadowSize: [41, 41]
-    });
-
-    // Localização em tempo real, sem centralizar
-    map.locate({
-      setView: false,
-      maxZoom: 18,
-      watch: true,
-      enableHighAccuracy: true
-    });
-
-    map.on("locationfound", function(e) {
-      if (!userMarker) {
-         userMarker = L.marker(e.latlng, { icon: redIcon }).addTo(map)
-          .bindPopup("📍 Você está aqui");
-      } else {
-        userMarker.setLatLng(e.latlng);
-      }
-    });
-
-    map.on("locationerror", function() {
-      alert("Não foi possível acessar sua localização.");
-    });
-
   </script>
 </body>
 </html>
