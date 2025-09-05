@@ -124,7 +124,7 @@
       .addTo(map);
     });
 
-    // Lista de empresas (resumida para caber, mas pode manter a sua completa)
+    // Lista de empresas (resumida para exemplo, pode manter completa)
     var empresas = [
       {nome: "Sicoob", coords: [-20.341189, -40.402039]},
       {nome: "Portaria 01", coords: [-20.342153, -40.401561]},
@@ -282,7 +282,9 @@
                   addWaypoints: false,
                   draggableWaypoints: false,
                   showAlternatives: false,
-                  routeWhileDragging: false
+                  routeWhileDragging: false,
+                  language: 'pt-BR',
+                  createMarker: function() { return null; } // remove marcadores padrão azul
                 }).addTo(map);
               } else {
                 alert("Sua localização ainda não foi encontrada!");
