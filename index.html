@@ -69,7 +69,23 @@
       padding: 5px;
       text-align: center;
       color: green;
-      text-shadow: 1px 1px 2px #fff; /* contraste */
+      text-shadow: 1px 1px 2px #fff;
+    }
+
+    /* Caixa de distância/tempo */
+    #routeInfo {
+      position: absolute;
+      top: 90px; /* abaixo da barra de busca */
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      font-size: 18px;
+      font-family: Arial, sans-serif;
+      display: none;
     }
   </style>
 </head>
@@ -81,6 +97,9 @@
     <div id="suggestions"></div>
   </div>
 
+  <!-- Caixa com distância/tempo -->
+  <div id="routeInfo"></div>
+
   <div id="map"></div>
 
   <!-- JS do Leaflet -->
@@ -89,43 +108,37 @@
   <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
   <script>
-    // Inicializa mapa (CEASA-ES como centro inicial)
+    // Inicializa mapa
     var map = L.map('map').setView([-20.340995, -40.402908], 18);
 
     // Camada do OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
-    // Lista de pavilhões
+    // Pavilhões
     var pavilhoes = [
-       {nome: "PP1", coords: [-20.34209272807713, -40.40343056150704]},
-       {nome: "PNP1", coords: [-20.341443874819706, -40.402886073084716]},
-       {nome: "PNP2", coords: [-20.341690338777376, -40.404133300258756]},
-       {nome: "PP2", coords: [-20.340988669934653, -40.40317306944145]},
-       {nome: "CC2", coords: [-20.342462422314554, -40.403020183530906]},
-       {nome: "CC1", coords: [-20.3420210525558, -40.400851617544426]},
-       {nome: "PP3", coords: [-20.340411488332943, -40.402987997023466]},
-       {nome: "MSV", coords: [-20.339999034810244, -40.40271441170787]},
-       {nome: "PPA", coords: [-20.340904419135413, -40.40136257838305]},
-       {nome: "Caixaria", coords: [-20.339375322501912, -40.40288607308167]}
+      {nome: "PP1", coords: [-20.34209272807713, -40.40343056150704]},
+      {nome: "PNP1", coords: [-20.341443874819706, -40.402886073084716]},
+      {nome: "PNP2", coords: [-20.341690338777376, -40.404133300258756]},
+      {nome: "PP2", coords: [-20.340988669934653, -40.40317306944145]},
+      {nome: "CC2", coords: [-20.342462422314554, -40.403020183530906]},
+      {nome: "CC1", coords: [-20.3420210525558, -40.400851617544426]},
+      {nome: "PP3", coords: [-20.340411488332943, -40.402987997023466]},
+      {nome: "MSV", coords: [-20.339999034810244, -40.40271441170787]},
+      {nome: "PPA", coords: [-20.340904419135413, -40.40136257838305]},
+      {nome: "Caixaria", coords: [-20.339375322501912, -40.40288607308167]}
     ];
-
-    // Adiciona os nomes dos pavilhões diretamente no mapa
     pavilhoes.forEach(function(p) {
-      L.tooltip({
-        permanent: true,
-        direction: 'center',
-        className: 'rotulo-mapa'
-      })
-      .setLatLng(p.coords)
-      .setContent(p.nome)
-      .addTo(map);
+      L.tooltip({ permanent: true, direction: 'center', className: 'rotulo-mapa' })
+        .setLatLng(p.coords)
+        .setContent(p.nome)
+        .addTo(map);
     });
 
-    // Lista de empresas (resumida para exemplo, pode manter completa)
-    var empresas = [
+    // Empresas
+     var empresas = [
       {nome: "Sicoob", coords: [-20.341189, -40.402039]},
       {nome: "Portaria 01", coords: [-20.342153, -40.401561]},
       {nome: "Portaria 02", coords: [-20.339382, -40.402143]},
@@ -222,27 +235,21 @@
       {nome: "Bar e Restaurante Bico Doce", coords: [-20.341399, -40.402728]}
     ];
 
-    // Cria marcadores mas não adiciona ao mapa
     var markers = {};
     empresas.forEach(function(e) {
-      var marker = L.marker(e.coords)
-        .bindPopup("<b>" + e.nome + "</b>")
-        .bindTooltip(e.nome, {permanent: false, direction: "top"});
+      var marker = L.marker(e.coords).bindPopup("<b>" + e.nome + "</b>");
       markers[e.nome] = marker;
     });
 
-    // Função de busca
     var searchInput = document.getElementById("searchInput");
     var suggestions = document.getElementById("suggestions");
-
-    // Variável para rota
+    var routeInfo = document.getElementById("routeInfo");
     var routingControl;
 
     searchInput.addEventListener("input", function() {
       var query = this.value.toLowerCase();
       suggestions.innerHTML = "";
 
-      // Remove todos os marcadores do mapa
       Object.values(markers).forEach(marker => {
         if (map.hasLayer(marker)) map.removeLayer(marker);
       });
@@ -264,17 +271,15 @@
               map.setView(marker.getLatLng(), 19);
               marker.openPopup();
 
-              // Se já existe uma rota, remove
               if (routingControl) {
                 map.removeControl(routingControl);
               }
 
-              // Gera rota do usuário até o destino
               if (userMarker) {
                 routingControl = L.Routing.control({
                   waypoints: [
-                    userMarker.getLatLng(),  // início
-                    marker.getLatLng()       // destino
+                    userMarker.getLatLng(),
+                    marker.getLatLng()
                   ],
                   lineOptions: {
                     styles: [{color: 'blue', weight: 5}]
@@ -282,10 +287,16 @@
                   addWaypoints: false,
                   draggableWaypoints: false,
                   showAlternatives: false,
-                  routeWhileDragging: false,
-                  language: 'pt-BR',
-                  createMarker: function() { return null; } // remove marcadores padrão azul
+                  createMarker: function() { return null; }
                 }).addTo(map);
+
+                routingControl.on('routesfound', function(e) {
+                  var route = e.routes[0];
+                  var distance = (route.summary.totalDistance / 1000).toFixed(2) + " km";
+                  var time = Math.round(route.summary.totalTime / 60) + " min";
+                  routeInfo.innerHTML = "Distância: " + distance + " | Tempo: " + time;
+                  routeInfo.style.display = "block";
+                });
               } else {
                 alert("Sua localização ainda não foi encontrada!");
               }
@@ -300,11 +311,8 @@
       }
     });
 
-    // =====================================
     // Localização em tempo real
     var userMarker;
-
-    // Ícone personalizado vermelho
     var redIcon = new L.Icon({
        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
@@ -314,7 +322,6 @@
        shadowSize: [41, 41]
     });
 
-    // Localização em tempo real, sem centralizar
     map.locate({
       setView: false,
       maxZoom: 18,
@@ -334,7 +341,6 @@
     map.on("locationerror", function() {
       alert("Não foi possível acessar sua localização.");
     });
-
   </script>
 </body>
 </html>
