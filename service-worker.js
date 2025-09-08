@@ -2,8 +2,8 @@ const CACHE_NAME = "ceasa-map-v1";
 const urlsToCache = [
   "index.html",
   "manifest.json",
-  "icon-192.png",
-  "icon-512.png",
+  "icone-192.png",
+  "icone-512.png",
   "https://unpkg.com/leaflet/dist/leaflet.css",
   "https://unpkg.com/leaflet/dist/leaflet.js"
 ];
@@ -23,3 +23,4 @@ self.addEventListener("fetch", event => {
     })
   );
 });
+
