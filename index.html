@@ -95,6 +95,35 @@
   </style>
 </head>
 <body>
+<button id="installBtn" style="display:none; padding:10px; background:#28a745; color:white; border:none; border-radius:8px; font-size:16px; cursor:pointer;">
+  📲 Instalar app
+</button>
+
+<script>
+  let deferredPrompt;
+  const installBtn = document.getElementById('installBtn');
+
+  // Captura o evento do navegador quando o app pode ser instalado
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'block'; // mostra o botão
+  });
+
+  // Quando o usuário clicar no botão
+  installBtn.addEventListener('click', async () => {
+    installBtn.style.display = 'none'; // esconde o botão
+    deferredPrompt.prompt(); // mostra a janela oficial do navegador
+
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      console.log('Usuário instalou o app');
+    } else {
+      console.log('Usuário recusou a instalação');
+    }
+    deferredPrompt = null;
+  });
+</script>
 
   <!-- Caixa de busca -->
   <div id="searchBox">
@@ -347,4 +376,5 @@
   </script>
 </body>
 </html>
+
 
