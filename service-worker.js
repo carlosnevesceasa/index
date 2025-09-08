@@ -1,10 +1,10 @@
-const CACHE_NAME = "ceasa-cache-v4";
+const CACHE_NAME = "ceasa-cache-v5";
 const urlsToCache = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./play_store_512.png"
-  
+  "./play_store_512.png",
+  "./icon-192.png"  
 ];
 
 // Instala o SW e adiciona ao cache
@@ -39,6 +39,7 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
 
 
 
