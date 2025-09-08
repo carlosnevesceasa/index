@@ -1,32 +1,15 @@
-"icons": [
-  {
-    "src": "icon-ceasa-192.png",
-    "sizes": "192x192",
-    "type": "image/png"
-  },
-  {
-    "src": "icon-ceasa-256.png",
-    "sizes": "256x256",
-    "type": "image/png"
-  },
-  {
-    "src": "icon-ceasa-384.png",
-    "sizes": "384x384",
-    "type": "image/png"
-  },
-  {
-    "src": "icon-ceasa-512.png",
-    "sizes": "512x512",
-    "type": "image/png"
-  },
-  {
-    "src": "icon-ceasa-1024.png",
-    "sizes": "1024x1024",
-    "type": "image/png",
-    "purpose": "any maskable"
-  }
-]
-
-
-
-
+{
+  "name": "Mapa da CEASA-ES",
+  "short_name": "MAPA CEASA",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4CAF50",
+  "icons": [
+    { "src": "icon-ceasa-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-ceasa-256.png", "sizes": "256x256", "type": "image/png" },
+    { "src": "icon-ceasa-384.png", "sizes": "384x384", "type": "image/png" },
+    { "src": "icon-ceasa-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-ceasa-1024.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
