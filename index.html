@@ -95,8 +95,16 @@
   </style>
 </head>
 <body>
-<div id="map"></div>
+  <!-- Caixa de busca -->
+  <div id="searchBox">
+    <input type="text" id="searchInput" placeholder="Buscar empresas ou locais">
+    <div id="suggestions"></div>
+  </div>
 
+  <!-- Informações da rota -->
+  <div id="routeInfo"></div>
+
+  <div id="map"></div>
 <!-- Janela de instalação no rodapé -->
 <div id="installBanner" style="
   display:none;
@@ -121,18 +129,6 @@
     Agora não
   </button>
 </div>
-  
-  <!-- Caixa de busca -->
-  <div id="searchBox">
-    <input type="text" id="searchInput" placeholder="Buscar empresas ou locais">
-    <div id="suggestions"></div>
-  </div>
-
-  <!-- Informações da rota -->
-  <div id="routeInfo"></div>
-
-  <div id="map"></div>
-
   <!-- JS do Leaflet -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <!-- JS do Routing Machine -->
@@ -398,6 +394,7 @@ closeBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
