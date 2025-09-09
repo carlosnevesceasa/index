@@ -3,8 +3,7 @@ const urlsToCache = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./play_store_512.png",
-  "./icon-192.png"  
+  "./play_store_512.png"
 ];
 
 // Instala o SW e adiciona ao cache
@@ -39,6 +38,7 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
 
 
 
