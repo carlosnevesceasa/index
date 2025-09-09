@@ -95,6 +95,7 @@
   </style>
 </head>
 <body>
+
   <!-- Caixa de busca -->
   <div id="searchBox">
     <input type="text" id="searchInput" placeholder="Buscar empresas ou locais">
@@ -105,6 +106,7 @@
   <div id="routeInfo"></div>
 
   <div id="map"></div>
+
   <!-- JS do Leaflet -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <!-- JS do Routing Machine -->
@@ -342,12 +344,6 @@
         .then(() => console.log("✅ Service Worker registrado!"))
         .catch(err => console.log("❌ Erro no Service Worker:", err));
     }
-
   </script>
 </body>
 </html>
-
-
-
-
-
