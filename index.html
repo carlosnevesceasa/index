@@ -7,13 +7,20 @@
 
   <!-- CSS do Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- CSS do Routing Machine -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
-  <!-- Manifest PWA -->
+ <!-- Manifest PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4CAF50">
 
+  <!-- CSS do Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
   <style>
-    #map { height: 100vh; width: 100%; }
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
 
     /* Caixa de busca */
     #searchBox {
@@ -28,6 +35,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
       width: 300px;
     }
+
     #searchInput {
       width: 95%;
       padding: 5px;
@@ -35,6 +43,7 @@
       border-radius: 6px;
       font-size: 24px;
     }
+
     #suggestions {
       max-height: 400px;
       overflow-y: auto;
@@ -46,21 +55,30 @@
       font-size: 20px;
       font-family: Arial, sans-serif;
     }
-    #suggestions div { padding: 5px; cursor: pointer; }
-    #suggestions div:hover { background: #eee; }
+
+    #suggestions div {
+      padding: 5px;
+      cursor: pointer;
+    }
+
+    #suggestions div:hover {
+      background: #eee;
+    }
 
     .rotulo-mapa {
       border: none;
-      background: white;
+      background: transparent;
+      background-color: white;
       border-radius: 5px;
       font-weight: bold;
       font-size: 14px;
       padding: 5px;
       text-align: center;
       color: green;
-      text-shadow: 1px 1px 2px #fff;
+      text-shadow: 1px 1px 2px #fff; /* contraste */
     }
 
+    /* Caixa de informação da rota */
     #routeInfo {
       position: absolute;
       bottom: 30px;
@@ -74,38 +92,6 @@
       font-size: 18px;
       display: none;
     }
-
-    /* Botão moderno de instalação PWA */
-    #installBtn {
-      display: none; /* só aparece quando beforeinstallprompt é capturado */
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 2000;
-      background: linear-gradient(135deg, #4CAF50, #2E7D32);
-      color: white;
-      border: none;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      font-size: 28px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    #installBtn:hover {
-      transform: scale(1.15);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-    }
-
-    #installBtn:active {
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
   </style>
 </head>
 <body>
@@ -118,30 +104,32 @@
   <!-- Informações da rota -->
   <div id="routeInfo"></div>
 
-  <!-- Mapa -->
   <div id="map"></div>
-
-  <!-- Botão moderno de instalação -->
-  <button id="installBtn" title="Instalar aplicativo">📲</button>
-
   <!-- JS do Leaflet -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- JS do Routing Machine -->
   <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
   <script>
-    // ---------- MAPA ----------
     var map = L.map('map').setView([-20.340995, -40.402908], 18);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Lista resumida de pavilhões
-    var pavilhoes = [
-      {nome: "PP1", coords: [-20.34209272807713, -40.40343056150704]},
-      {nome: "PNP1", coords: [-20.341443874819706, -40.402886073084716]},
-      {nome: "PNP2", coords: [-20.341690338777376, -40.404133300258756]},
-      {nome: "PP2", coords: [-20.340988669934653, -40.40317306944145]}
+    // Lista de pavilhões (resumida para exemplo)
+   var pavilhoes = [
+       {nome: "PP1", coords: [-20.34209272807713, -40.40343056150704]},
+       {nome: "PNP1", coords: [-20.341443874819706, -40.402886073084716]},
+       {nome: "PNP2", coords: [-20.341690338777376, -40.404133300258756]},
+       {nome: "PP2", coords: [-20.340988669934653, -40.40317306944145]},
+       {nome: "CC2", coords: [-20.342462422314554, -40.403020183530906]},
+       {nome: "CC1", coords: [-20.3420210525558, -40.400851617544426]},
+       {nome: "PP3", coords: [-20.340411488332943, -40.402987997023466]},
+       {nome: "MSV", coords: [-20.339999034810244, -40.40271441170787]},
+       {nome: "PPA", coords: [-20.340904419135413, -40.40136257838305]},
+       {nome: "Caixaria", coords: [-20.339375322501912, -40.40288607308167]}
     ];
 
     pavilhoes.forEach(function(p) {
@@ -155,11 +143,102 @@
       .addTo(map);
     });
 
-    // Empresas de exemplo
+    // Lista de empresas (exemplo)
     var empresas = [
       {nome: "Sicoob", coords: [-20.341189, -40.402039]},
       {nome: "Portaria 01", coords: [-20.342153, -40.401561]},
-      {nome: "Portaria 02", coords: [-20.339382, -40.402143]}
+      {nome: "Portaria 02", coords: [-20.339382, -40.402143]},
+      {nome: "Cheid - Bar e Lanchonete", coords: [-20.341577, -40.404226]},
+      {nome: "Extrafruti", coords: [-20.342007, -40.402896]},
+      {nome: "Shopping Rural", coords: [-20.342553279509563, -40.40342035030273]},
+      {nome: "Aupeces", coords: [-20.341834, -40.401945]},
+      {nome: "Banco do Brasil", coords: [-20.342282925119797, -40.40192770097774]},
+      {nome: "Banestes", coords: [-20.342342025885813, -40.4021530065293]},
+      {nome: "Nutrivita - Loja de Ração", coords: [-20.34234957065667, -40.40270956490556]},
+      {nome: "Comercial Ulliana", coords: [-20.341866704185144, -40.4041660043639]},
+      {nome: "Pedra alta", coords: [-20.341501718446402, -40.40309528538498]},
+      {nome: "Pedra baixa", coords: [-20.341654192160508, -40.403913876729284]},
+      {nome: "Nucleo de Atendimento ao Produtor de Santa Maria de Jetibá", coords: [-20.34111410849316, -40.401984027342074]},
+      {nome: "Recepção da administração da CEASA", coords: [-20.341549822229744, -40.402070528584005]},
+      {nome: "Estacionamento da administração", coords: [-20.341783711344867, -40.40173391136113]},
+      {nome: "Auditório da CEASA-ES", coords: [-20.341146174049072, -40.40202358992677]},
+      {nome: "Gerência de Mercado e Rastreabilidade", coords: [-20.341647, -40.402199]},
+      {nome: "Bananas EP", coords: [-20.342341397127736, -40.40253589184343]},
+      {nome: "Comercial Santa Tereza", coords: [-20.340927373650516, -40.40241653353706]},
+      {nome: "Chapolin do Limão", coords: [-20.341015396829206, -40.4028483691918]},
+      {nome: "Estacionamento do Sicoob", coords: [-20.341357429286276, -40.40187204511135]},
+      {nome: "AGC Frutas", coords: [-20.34113990870041, -40.40135486566918]},
+      {nome: "Comercial Resplendor", coords: [-20.340968892323616, -40.40262891493192]},
+      {nome: "Vale Frutas", coords: [-20.341002844118957, -40.402709381200644]},
+      {nome: "Associação dos Carregadores", coords: [-20.340397998041585, -40.401637838717505]},
+      {nome: "Pousada do produtor", coords: [-20.3393225080387, -40.40169651340062]},
+      {nome: "Mesa Brasil", coords: [-20.339458316621446, -40.401622752653]},
+      {nome: "CDS Comercial", coords: [-20.341950634490132, -40.40307919214756]},
+      {nome: "CV Embalagens", coords: [-20.34197829874079, -40.403258900148984]},
+      {nome: "GOBBI Hortifruti", coords: [-20.34201099284881, -40.403454701404264]},
+      {nome: "Agro Galina", coords: [-20.34201350777991, -40.40354053209151]},
+      {nome: "Zé Mar", coords: [-20.34202608243479, -40.40361563394285]},
+      {nome: "Frutisul", coords: [-20.342043686949907, -40.40368805358521]},
+      {nome: "Comercial Davi & Martins", coords: [-20.34204871681101, -40.40375510880963]},
+      {nome: "Agronegócios Novelli", coords: [-20.342086440764003, -40.40381411740711]},
+      {nome: "Copperfruti", coords: [-20.34208895569404, -40.40387580822276]},
+      {nome: "Distribuidora Vitória", coords: [-20.342085375228795, -40.40395742269504]},
+      {nome: "Brasil Embalagens", coords: [-20.34212561410211, -40.40410226197977]},
+      {nome: "Casa do Alho", coords: [-20.341688015792233, -40.4042122325478]},
+      {nome: "Casa Bahia", coords: [-20.34127053577347, -40.403903778506425]},
+      {nome: "JP Distribuidora", coords: [-20.341215207013832, -40.40373748154988]},
+      {nome: "Avícola Kerckhoff", coords: [-20.342301659049106, -40.40375625700194]},
+      {nome: "Distribuidora de Legumes", coords: [-20.34227399485635, -40.403887685241784]},
+      {nome: "Distribuidora Vitória", coords: [-20.342279024709942, -40.4039547404662]},
+      {nome: "Perim", coords: [-20.342175912678453, -40.40319299311688]},
+      {nome: "Autoelétrica", coords: [-20.342548121638792, -40.40382331222635]},
+      {nome: "Casa do Adubo", coords: [-20.342467644101713, -40.40324127287846]},
+      {nome: "Barbearia", coords: [-20.34236956204673, -40.40245806785734]},
+      {nome: "Distribuidora Itaparica", coords: [-20.34120263229202, -40.403563137954826]},
+      {nome: "Frifrul", coords: [-20.341174967902525, -40.40334319681876]},
+      {nome: "Master Alimentos", coords: [-20.34111963910868, -40.40315812439939]},
+      {nome: "Virc", coords: [-20.34111963910868, -40.40304815383136]},
+      {nome: "Meloti Frutas", coords: [-20.341104549434203, -40.402951594308206]},
+      {nome: "Comercial JOJO", coords: [-20.34032994414825, -40.402034278829355]},
+      {nome: "Frutas & Cia", coords: [-20.340392818097357, -40.402179118114084]},
+      {nome: "Vieira Júnior Alimentos", coords: [-20.340435572368126, -40.40223812671157]},
+      {nome: "Administração <br> CEASA", coords: [-20.34167776410467, -40.40203044842133]},
+      {nome: "Mel Frutas", coords: [-20.340528855472694, -40.40245260794121]},
+      {nome: "Mercofrutas", coords: [-20.340546460158354, -40.40261890489774]},
+      {nome: "Gordinho do Maracujá", coords: [-20.34052382556214, -40.40272351104782]},
+      {nome: "Distribuidora Campineira", coords: [-20.340554005023034, -40.40279056627224]},
+      {nome: "Cabana Importação", coords: [-20.340596759249213, -40.40290590125822]},
+      //{nome: "Empório Santa Tereza", coords: [-20.34059927420334, -40.40307219821476]},
+      {nome: "Distribuidora Nunes", coords: [-20.34059927420334, -40.40322508412642]},
+      {nome: "Bianvirc", coords: [-20.340619393834764, -40.40332700806752]},
+      {nome: "Comercial Horti-Verde", coords: [-20.34063448355663, -40.403348465739334]},
+      {nome: "CV Alimentos", coords: [-20.340677237760545, -40.40348525839713]},
+      {nome: "Gregallon Horti-Verde", coords: [-20.340669692901898, -40.403579135711304]},
+      {nome: "Agrobarba", coords: [-20.340687297571527, -40.403734703831944]},
+      {nome: "Toaletes (banheiros)", coords: [-20.340043468338393, -40.40311243134942]},
+      {nome: "Abacaxi", coords: [-20.34002334863198, -40.40283348161587]},
+      {nome: "coco", coords: [-20.33985233102178, -40.40233995516421]},
+      {nome: "Perim Horti-Fruti", coords: [-20.340571609703325, -40.401497741541284]},
+      {nome: "Maia Distribuidora Hortifrutigranjeiros", coords: [-20.340672207852307, -40.4014736016605]},
+      {nome: "Tesch Casa da Abóbora e Melancia", coords: [-20.340810530200237, -40.401460190615616]},
+      {nome: "O Tomateiro Tomates Especiais", coords: [-20.340981546750168, -40.401444097361754]},
+      {nome: "trailer restaurante", coords: [-20.340028378548958, -40.40296088653848]},
+      {nome: "Comércio de peixes <br> (segunda a sexta feira, exceto terça)", coords: [-20.341642976634873, -40.403526832635414]},
+      {nome: "Toaletes (banheiro central)", coords: [-20.341396512547206, -40.40436368184282]},
+      {nome: "Casa Lotérica", coords: [-20.341357959239673, -40.402828139231985]},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      //{nome: "", coords: []},
+      {nome: "Bar e Restaurante Bico Doce", coords: [-20.341399, -40.402728]}
     ];
 
     var markers = {};
@@ -176,6 +255,7 @@
     var routingControl;
     var userMarker;
 
+    // Ícone vermelho para o usuário
     var redIcon = new L.Icon({
        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
@@ -186,6 +266,7 @@
     });
 
     map.locate({ setView: false, maxZoom: 18, watch: true, enableHighAccuracy: true });
+
     map.on("locationfound", function(e) {
       if (!userMarker) {
          userMarker = L.marker(e.latlng, { icon: redIcon }).addTo(map)
@@ -194,6 +275,7 @@
         userMarker.setLatLng(e.latlng);
       }
     });
+
     map.on("locationerror", function() {
       alert("Não foi possível acessar sua localização.");
     });
@@ -201,7 +283,10 @@
     searchInput.addEventListener("input", function() {
       var query = this.value.toLowerCase();
       suggestions.innerHTML = "";
-      Object.values(markers).forEach(marker => { if (map.hasLayer(marker)) map.removeLayer(marker); });
+
+      Object.values(markers).forEach(marker => {
+        if (map.hasLayer(marker)) map.removeLayer(marker);
+      });
 
       if (query.length > 0) {
         var matches = empresas.filter(e => e.nome.toLowerCase().includes(query));
@@ -224,7 +309,7 @@
               if (userMarker) {
                 routingControl = L.Routing.control({
                   waypoints: [userMarker.getLatLng(), marker.getLatLng()],
-                  router: L.Routing.osrmv1({ profile: 'foot' }),
+                  router: L.Routing.osrmv1({ profile: 'foot' }), // 🚶 rota a pé
                   lineOptions: { styles: [{ color: 'blue', weight: 5 }] },
                   addWaypoints: false,
                   draggableWaypoints: false,
@@ -238,39 +323,31 @@
                   routeInfo.innerHTML = "Distância: " + km + " km | Tempo estimado: " + min + " min";
                   routeInfo.style.display = "block";
                 }).addTo(map);
-              } else { alert("Sua localização ainda não foi encontrada!"); }
+              } else {
+                alert("Sua localização ainda não foi encontrada!");
+              }
             };
             suggestions.appendChild(div);
           });
-        } else { suggestions.style.display = "none"; }
-      } else { suggestions.style.display = "none"; }
+        } else {
+          suggestions.style.display = "none";
+        }
+      } else {
+        suggestions.style.display = "none";
+      }
     });
-
-    // ---------- SERVICE WORKER (PWA) ----------
+    // Registro do service worker (PWA)
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js")
         .then(() => console.log("✅ Service Worker registrado!"))
         .catch(err => console.log("❌ Erro no Service Worker:", err));
     }
 
-    // ---------- BOTÃO MODERNO DE INSTALAÇÃO PWA ----------
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = 'flex'; // mostra botão quando o evento ocorrer
-    });
-
-    installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt(); // mostra o prompt nativo
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(outcome === 'accepted' ? 'Usuário aceitou!' : 'Usuário rejeitou!');
-      deferredPrompt = null;
-      installBtn.style.display = 'none'; // esconde botão após instalação
-    });
   </script>
 </body>
 </html>
+
+
+
+
+
