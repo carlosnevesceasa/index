@@ -66,90 +66,44 @@
     /* Botão de rota */
     #routeButtonContainer {
       position: absolute;
-      bottom: 10px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 1000;
       display: none;
     }
+
     #routeButton {
-      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 320px;
+      padding: 14px 24px;
       font-size: 18px;
-      border-radius: 8px;
-      background: #4CAF50;
+      font-weight: 600;
+      border-radius: 999px; /* formato pílula */
+      background: linear-gradient(135deg, #43A047, #2E7D32);
       color: white;
       border: none;
       cursor: pointer;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+      transition: all 0.2s ease;
     }
-   #routeButtonContainer {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  display: none;
-}
 
-#routeButtonContainer {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  display: none;
-}
+    #routeButton:hover {
+      background: linear-gradient(135deg, #4CAF50, #388E3C);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+    }
 
-#routeButtonContainer {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  display: none;
-}
+    #routeButton:active {
+      transform: scale(0.98);
+    }
 
-#routeButtonContainer {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  display: none;
-}
-
-#routeButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 320px;
-  padding: 14px 24px;
-  font-size: 18px;
-  font-weight: 600;
-  border-radius: 999px; /* pill shape */
-  background: linear-gradient(135deg, #43A047, #2E7D32); /* gradiente sutil */
-  color: white;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-  transition: all 0.2s ease;
-}
-
-#routeButton:hover {
-  background: linear-gradient(135deg, #4CAF50, #388E3C);
-  transform: translateY(-2px); /* leve destaque no hover */
-  box-shadow: 0 8px 18px rgba(0,0,0,0.3);
-}
-
-#routeButton:active {
-  transform: scale(0.98); /* efeito clique */
-}
-
-#routeButton svg {
-  flex-shrink: 0;
-}
-
-
+    #routeButton svg {
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -162,18 +116,14 @@
   <div id="routeInfo"></div>
 
   <div id="routeButtonContainer">
-  <button id="routeButton">
-    <!-- Ícone seta estilo Google Maps -->
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2 L19 21 L12 17 L5 21 Z" fill="white"/>
-    </svg>
-    <span>Rotas para veículos</span>
-  </button>
-</div>
-
-
-
-
+    <button id="routeButton">
+      <!-- Ícone seta estilo Google Maps -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2 L19 21 L12 17 L5 21 Z" fill="white"/>
+      </svg>
+      <span>Rotas para veículos</span>
+    </button>
+  </div>
 
   <div id="map"></div>
 
@@ -185,10 +135,10 @@
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
-    var pavilhoes = [
+   var pavilhoes = [
        {nome: "PP1", coords: [-20.34209272807713, -40.40343056150704]},
        {nome: "PNP1", coords: [-20.341443874819706, -40.402886073084716]},
        {nome: "PNP2", coords: [-20.341690338777376, -40.404133300258756]},
@@ -391,7 +341,7 @@
 
       routingControl = L.Routing.control({
         waypoints: [userMarker.getLatLng(), window.selectedDestination],
-        router: L.Routing.osrmv1({ profile: 'car' }), // 🚗 rota de carro
+        router: L.Routing.osrmv1({ profile: 'car' }),
         lineOptions: { styles: [{ color: 'blue', weight: 5 }] },
         addWaypoints: false,
         draggableWaypoints: false,
@@ -405,6 +355,9 @@
         routeInfo.innerHTML = "Distância: " + km + " km | Tempo estimado: " + min + " min";
         routeInfo.style.display = "block";
       }).addTo(map);
+
+      // 🔴 Esconder botão após clique
+      routeButtonContainer.style.display = "none";
     });
 
     // Service Worker PWA
