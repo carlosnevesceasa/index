@@ -351,14 +351,16 @@
 
   if (routingControl) map.removeControl(routingControl);
 
-  // Define estilo diferente para cada tipo de rota
   let styleOptions = (profile === "car")
     ? { styles: [{ color: "blue", weight: 5 }] }
     : { styles: [{ color: "green", weight: 4, dashArray: "10, 10" }] };
 
   routingControl = L.Routing.control({
     waypoints: [userMarker.getLatLng(), window.selectedDestination],
-    router: L.Routing.osrmv1({ profile: profile }),
+    router: L.Routing.osrmv1({
+      serviceUrl: "https://router.project-osrm.org/route/v1",
+      profile: profile
+    }),
     lineOptions: styleOptions,
     addWaypoints: false,
     draggableWaypoints: false,
@@ -373,9 +375,9 @@
     routeInfo.style.display = "block";
   }).addTo(map);
 
-  // Esconde botões após traçar rota
-  routeButtonContainer.style.display = "none";
+  routeButtonContainer.style.display = "none"; // agora só aqui
 }
+
 
 // Eventos dos botões
 document.getElementById("routeCarButton").addEventListener("click", function() {
@@ -386,11 +388,6 @@ document.getElementById("routeFootButton").addEventListener("click", function() 
   createRoute("foot");
 });
 
-
-      // 🔴 Esconder botão após clique
-      routeButtonContainer.style.display = "none";
-    });
-
     // Service Worker PWA
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js")
@@ -400,6 +397,7 @@ document.getElementById("routeFootButton").addEventListener("click", function() 
   </script>
 </body>
 </html>
+
 
 
 
