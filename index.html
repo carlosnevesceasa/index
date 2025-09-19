@@ -341,7 +341,7 @@
 
       routingControl = L.Routing.control({
         waypoints: [userMarker.getLatLng(), window.selectedDestination],
-        router: L.Routing.osrmv1({ profile: 'car' }),
+        router: L.Routing.osrmv1({ profile: 'foot' }),
         lineOptions: { styles: [{ color: 'blue', weight: 5 }] },
         addWaypoints: false,
         draggableWaypoints: false,
@@ -369,3 +369,4 @@
   </script>
 </body>
 </html>
+
