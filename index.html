@@ -72,38 +72,6 @@
     }
 
     /* Botão de rota */
-
-    #routeButton {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 200px;
-      padding: 14px 24px;
-      font-size: 18px;
-      font-weight: 600;
-      border-radius: 999px; /* formato pílula */
-      background: linear-gradient(135deg, #43A047, #2E7D32);
-      color: white;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-      transition: all 0.2s ease;
-    }
-
-    #routeButton:hover {
-      background: linear-gradient(135deg, #4CAF50, #388E3C);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.3);
-    }
-
-    #routeButton:active {
-      transform: scale(0.98);
-    }
-
-    #routeButton svg {
-      flex-shrink: 0;
-    }
 #routeButtonContainer {
   position: absolute;
   bottom: 20px;
@@ -122,11 +90,20 @@
   font-weight: bold;
   cursor: pointer;
   color: white;
+  max-width: 200px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.25);
 }
 
 .btn-car { background: #007bff; }
 .btn-foot { background: #28a745; }
+.btn-car, .btn-foot {
+   background: linear-gradient(135deg, #4CAF50, #388E3C);
+   transform: translateY(-2px);
+   box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+   background: linear-gradient(135deg, #4CAF50, #388E3C);
+   transform: translateY(-2px);
+   box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+}
 
   </style>
 </head>
@@ -405,6 +382,7 @@ document.getElementById("routeFootButton").addEventListener("click", function() 
   </script>
 </body>
 </html>
+
 
 
 
