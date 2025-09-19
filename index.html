@@ -64,14 +64,6 @@
     }
 
     /* Botão de rota */
-    #routeButtonContainer {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      display: none;
-    }
 
     #routeButton {
       display: flex;
@@ -104,6 +96,30 @@
     #routeButton svg {
       flex-shrink: 0;
     }
+#routeButtonContainer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: none;
+  gap: 10px;
+}
+
+#routeButtonContainer button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+.btn-car { background: #007bff; }
+.btn-foot { background: #28a745; }
+
   </style>
 </head>
 <body>
@@ -116,14 +132,10 @@
   <div id="routeInfo"></div>
 
   <div id="routeButtonContainer">
-    <button id="routeButton">
-      <!-- Ícone seta estilo Google Maps -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2 L19 21 L12 17 L5 21 Z" fill="white"/>
-      </svg>
-      <span>Rotas para veículos</span>
-    </button>
+     <button id="routeCarButton" class="btn-car">🚗 Rotas para veículos</button>
+     <button id="routeFootButton" class="btn-foot">🚶 Rotas para pedestres</button>
   </div>
+
 
   <div id="map"></div>
 
@@ -333,28 +345,47 @@
     });
 
     // Evento do botão de rota
-    document.getElementById("routeButton").addEventListener("click", function() {
-      if (!window.selectedDestination) { alert("Selecione primeiro um local!"); return; }
-      if (!userMarker) { alert("Sua localização ainda não foi encontrada!"); return; }
+   function createRoute(profile) {
+  if (!window.selectedDestination) { alert("Selecione primeiro um local!"); return; }
+  if (!userMarker) { alert("Sua localização ainda não foi encontrada!"); return; }
 
-      if (routingControl) map.removeControl(routingControl);
+  if (routingControl) map.removeControl(routingControl);
 
-      routingControl = L.Routing.control({
-        waypoints: [userMarker.getLatLng(), window.selectedDestination],
-        router: L.Routing.osrmv1({ profile: 'car' }),
-        lineOptions: { styles: [{ color: 'blue', weight: 5 }] },
-        addWaypoints: false,
-        draggableWaypoints: false,
-        show: false,
-        routeWhileDragging: false,
-        createMarker: function() { return null; }
-      }).on('routesfound', function(e) {
-        var route = e.routes[0];
-        var km = (route.summary.totalDistance / 1000).toFixed(2);
-        var min = Math.round(route.summary.totalTime / 60);
-        routeInfo.innerHTML = "Distância: " + km + " km | Tempo estimado: " + min + " min";
-        routeInfo.style.display = "block";
-      }).addTo(map);
+  // Define estilo diferente para cada tipo de rota
+  let styleOptions = (profile === "car")
+    ? { styles: [{ color: "blue", weight: 5 }] }
+    : { styles: [{ color: "green", weight: 4, dashArray: "10, 10" }] };
+
+  routingControl = L.Routing.control({
+    waypoints: [userMarker.getLatLng(), window.selectedDestination],
+    router: L.Routing.osrmv1({ profile: profile }),
+    lineOptions: styleOptions,
+    addWaypoints: false,
+    draggableWaypoints: false,
+    show: false,
+    routeWhileDragging: false,
+    createMarker: function() { return null; }
+  }).on("routesfound", function(e) {
+    var route = e.routes[0];
+    var km = (route.summary.totalDistance / 1000).toFixed(2);
+    var min = Math.round(route.summary.totalTime / 60);
+    routeInfo.innerHTML = "Distância: " + km + " km | Tempo estimado: " + min + " min";
+    routeInfo.style.display = "block";
+  }).addTo(map);
+
+  // Esconde botões após traçar rota
+  routeButtonContainer.style.display = "none";
+}
+
+// Eventos dos botões
+document.getElementById("routeCarButton").addEventListener("click", function() {
+  createRoute("car");
+});
+
+document.getElementById("routeFootButton").addEventListener("click", function() {
+  createRoute("foot");
+});
+
 
       // 🔴 Esconder botão após clique
       routeButtonContainer.style.display = "none";
@@ -369,5 +400,6 @@
   </script>
 </body>
 </html>
+
 
 
