@@ -1,6 +1,6 @@
 {
   "name": "Mapa da CEASA-ES",
-  "short_name": "MAPA CEASA",
+  "short_name": "Mapa Ceasa",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#13A119",
@@ -9,6 +9,7 @@
     { "src": "play_store_512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
+
 
 
 
