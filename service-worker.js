@@ -1,4 +1,4 @@
-const CACHE_NAME = "ceasa-cache-v18";
+const CACHE_NAME = "ceasa-cache-v20";
 const urlsToCache = [
   "./",
   "./index.html",
@@ -38,6 +38,7 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
 
 
 
